@@ -256,7 +256,7 @@ int export(const struct BMP *bmp, const char *fileName)
                 encode(outputString, &position, 0, 64);
                 break;
         }
-        for (uint32_t y = bmp->height - 1; y < INT32_MAX; y--)
+        for (uint32_t y = bmp->height - 1; y < UINT32_MAX; y--)
         {
             for (unsigned int x = 0; x < bmp->width; x++)
             {
@@ -346,6 +346,11 @@ void setSize(struct BMP *bmp, unsigned int width, unsigned int height)
                 bmp->R[i] = calloc(height, sizeof(uint8_t));
                 bmp->G[i] = calloc(height, sizeof(uint8_t));
                 bmp->B[i] = calloc(height, sizeof(uint8_t));
+                if (bmp->bitDepth == 32)
+                {
+                    bmp->A[i] = malloc(height);
+                    memset(bmp->A[i], 0xFF, height);
+                }
             }
         }
         if (height != bmp->height)
@@ -355,12 +360,22 @@ void setSize(struct BMP *bmp, unsigned int width, unsigned int height)
                 bmp->R[i] = realloc(bmp->R[i], height);
                 bmp->G[i] = realloc(bmp->G[i], height);
                 bmp->B[i] = realloc(bmp->B[i], height);
+                if (bmp->bitDepth == 32)
+                {
+                    bmp->A[i] = realloc(bmp->A[i], height);
+                }
             }
             if (height > bmp->height)
             {
                 for (unsigned int x = 0; x < width; x++)
                 {
                     memset(&bmp->R[x][bmp->height], 0, height - bmp->height * sizeof(uint8_t));
+                    memset(&bmp->G[x][bmp->height], 0, height - bmp->height * sizeof(uint8_t));
+                    memset(&bmp->B[x][bmp->height], 0, height - bmp->height * sizeof(uint8_t));
+                    if (bmp->bitDepth == 32)
+                    {
+                        memset(&bmp->A[x][bmp->height], 0, height - bmp->height * sizeof(uint8_t));
+                    }
                 }
             }
         }
